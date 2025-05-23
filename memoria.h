@@ -4,17 +4,20 @@
 #include "structs.h"
 
 typedef struct {
-    Pagina **frames;
-    int numeroDeEnderecos;
+    Pagina *frames;
     int numeroDeFrames;
+    int framesOcupados;
+    int numeroDeEnderecos;
 } Memoria;
 
-// Cria o contexto da memória com a quantidade de frames 
-// e número de endereços por página pré-definidos
+// Cria o contexto da memória com a quantidade de frames predefinidos
 Memoria* criarMemoria(int numeroDeFrames, int numeroDeEnderecos);
 
-// Percore a memória e aloca a página em um frame, retorna o número do frame
-// no qual a página foi alocada
+// Percorre a memória e aloca a página em um frame
 int alocarPagina(Memoria *memoria, Pagina* pagina);
+
+void imprimirEstado(Memoria *memoria, int *contadorDeCiclos);
+
+int converterEnderecoVirtual(Memoria *memoria, Processo *processo, int enderecoVirtual);
 
 #endif
