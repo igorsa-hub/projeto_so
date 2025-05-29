@@ -7,10 +7,10 @@
 #include "structs.h"
 #include "utils.h"
 
-#define NUMERO_MAXIMO_DE_PROCESSOS 20 // Número máximo de processos que podem ser criados
-
 int NUMERO_DE_FRAMES; // Número total de frames na memória
 int NUMERO_DE_ENDERECOS; // Número de endereços por página
+int NUMERO_DE_PROCESSOS; // Número de processos
+int TEMPO_DE_CICLO; // Tempo de ciclo, quanto maior, mais devagar o ciclo vai passar
 
 Processo *processos; // Array de processos
 
@@ -18,15 +18,22 @@ int ciclo = 0; // Contador de ciclos
 
 // Método para extrair os parâmetros de linha de comando
 // Retorna true se forem extraídos com sucesso, e retorna false se não houver exatamente 2 parâmetros
-bool extrairParametros(int argc, char *argv[], int *numeroDeFrames, int *numeroDeEnderecos) {
+bool extrairParametros(int argc, char *argv[], int *numeroDeFrames, int *numeroDeEnderecos, int *numeroDeProcessos, int *tempoDeCiclo) {
     // Se não for especificado o número de frames ou número de endereços em uma página,
     // exibir uma mensagem de ero
-    if (argc != 3) {
+    if (argc != 5) {
         return false;
     }
 
     *numeroDeFrames = atoi(argv[1]);
     *numeroDeEnderecos = atoi(argv[2]);
+    *numeroDeProcessos = atoi(argv[3]);
+    *tempoDeCiclo = atoi(argv[4]);
+
+    // Se algum dos valores for menor que 0
+    if (*numeroDeFrames <= 0 || *numeroDeEnderecos <= 0 || *numeroDeProcessos <= 0 || *tempoDeCiclo <= 0) {
+        return false;
+    }
 
     printf(
         "[INFO] Informações da memória:\n\tNúmero de frames: %d\n\tNúmero de endereços: %d\n\tMemória disponível: %s\n\n",
@@ -40,9 +47,9 @@ bool extrairParametros(int argc, char *argv[], int *numeroDeFrames, int *numeroD
 
 
 void criarProcessos() {
-    processos = (Processo *)malloc(NUMERO_MAXIMO_DE_PROCESSOS * sizeof(Processo));
+    processos = (Processo *)malloc(NUMERO_DE_PROCESSOS * sizeof(Processo));
 
-    for (int i = 0; i < NUMERO_MAXIMO_DE_PROCESSOS; i++) {
+    for (int i = 0; i < NUMERO_DE_PROCESSOS; i++) {
         // Cria um número aleatório de páginas para cada processo
         int numeroDePaginasDoProcesso = rand() % (int) (NUMERO_DE_FRAMES * 3) + 1;
 
@@ -54,8 +61,8 @@ void criarProcessos() {
 int main(int argc, char *argv[]) {
     srand(time(NULL)); // Inicializa o gerador de números aleatórios
 
-    if (!extrairParametros(argc, argv, &NUMERO_DE_FRAMES, &NUMERO_DE_ENDERECOS)) {
-        printf("Parâmetros insuficientes, tente novamente com:\n\t<Número de frames> <Número de endereços>\n");
+    if (!extrairParametros(argc, argv, &NUMERO_DE_FRAMES, &NUMERO_DE_ENDERECOS, &NUMERO_DE_PROCESSOS, &TEMPO_DE_CICLO)) {
+        printf("Parâmetros insuficientes, tente novamente com:\n\t<Número de frames> <Número de endereços> <Número de processos>\n");
 
         return 1;
     }
@@ -65,7 +72,7 @@ int main(int argc, char *argv[]) {
 
     while (true) {        
         // Escolher um processo aleatório para realizar a requisição
-        int processoAleatorio = rand() % NUMERO_MAXIMO_DE_PROCESSOS;
+        int processoAleatorio = rand() % NUMERO_DE_PROCESSOS;
         
         // Gera uma página aleatória para o processo escolhido, com 20% de chance de ser maior que o número de páginas do processo
         int pagina = rand() % (int) (processos[processoAleatorio].numeroDePaginas * 1.1);
@@ -86,7 +93,7 @@ int main(int argc, char *argv[]) {
 
         imprimirEstado(memoria, &ciclo);
 
-        sleep(4); // Simula o tempo de espera para o próximo acesso à memória
+        sleep(TEMPO_DE_CICLO); // Simula o tempo de espera para o próximo acesso à memória
         ciclo++;
         printf("\n");
     }

@@ -71,7 +71,7 @@ void extrairInformacoes(Memoria *m, Processo *p, int enderecoVirtual, int *pagin
     *deslocamento = enderecoVirtual & 0xFFFFF; // 20 bits
 
     if (*pagina >= p->numeroDePaginas) {
-        printf("\tA página %d é inválida para o processo %d (%d páginas válidas)\n", *pagina, p->pid, p->numeroDePaginas);
+        printf("\tA página %d é inválida para o processo %d (%d páginas válidas)\n", *pagina + 1, p->pid, p->numeroDePaginas);
         *pagina = -1;
     }
      if (*deslocamento >= m->numeroDeEnderecos) {
@@ -93,14 +93,14 @@ int converterEnderecoVirtual(Memoria *memoria, Processo *processo, int enderecoV
 
     // Verifica se a página já está na memória
     if (processo->paginas[pagina].estaEmMemoria) {
-        printf("\tA página %d @ PID %d já está na memória\n", pagina, processo->pid);
+        printf("\tA página %d @ PID %d já está na memória\n", pagina + 1, processo->pid);
         processo->paginas[pagina].ultimoAcesso = time(NULL);
     } else {
-        printf("\t[PAGE FAULT] A página %d @ PID %d não está na memória\n", pagina, processo->pid);
+        printf("\t[PAGE FAULT] A página %d @ PID %d não está na memória\n", pagina + 1, processo->pid);
         int frame = alocarPagina(memoria, &processo->paginas[pagina]);
     }
     
-    printf("\t[INFO] Página %d com deslocamento %d (Frame %d)\n", pagina, deslocamento, processo->paginas[pagina].frame);
+    printf("\t[INFO] Página %d com deslocamento %d (Frame %d)\n", pagina + 1, deslocamento, processo->paginas[pagina].frame);
     // Endereço físico = frame * número de endereços + deslocamento
     return processo->paginas[pagina].frame * memoria->numeroDeEnderecos + deslocamento;
 }
