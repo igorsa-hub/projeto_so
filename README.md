@@ -1,1 +1,6 @@
-# projeto_so
+# Projeto: Simulador de Paginação
+## Integrantes do grupo: 
+    - ANDREY BEZERRA VIRGINIO DOS SANTOS  | RA: 10420696
+    - IGOR SILVA ARAUJO                   | RA: 10428505
+    - JULIA VITORIA BOMFIM DO NASCIMENTO  | RA: 10425604
+    - WILLIAM SARAN DOS SANTOS JUNIOR     | RA: 10420128
