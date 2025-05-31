@@ -17,6 +17,17 @@ Memoria* criarMemoria(int numeroDeFrames, int numeroDeEnderecos) {
     return memoria;
 }
 
+void limparMemoria(Memoria *memoria) {
+    for (int i = i; i < memoria->numeroDeFrames; i++) {
+        memoria->frames[i].estaEmMemoria = false;  // Marca a página como não alocada
+        memoria->frames[i].frame = -1;              // Reseta o frame
+        memoria->frames[i].ultimoAcesso = 0; // Reseta o último acesso
+        // memoria->frames[i] = NULL; // Limpa a página
+    }
+
+    memoria->framesOcupados = 0; // Reseta o contador de frames ocupados
+}
+
 // Retorna o frame em que a página utilizada há mais tempo se encontra
 int leastRecentlyUsed(Memoria *m) {
     Pagina leastRecentlyUsed = m->frames[0];
@@ -63,8 +74,7 @@ int alocarPagina(Memoria *memoria, Pagina *pagina, int politica) {
         printf("\t[INFO] A memória está cheia, removendo a página mais antiga\n");
         if (politica == 0){
             index = leastRecentlyUsed(memoria);
-        }
-        else{
+        } else{
             index = firstInFirstOut(memoria);
         }
         memoria->frames[index].estaEmMemoria = false;  // Corrigido
@@ -99,7 +109,7 @@ void extrairInformacoes(Memoria *m, Processo *p, int enderecoVirtual, int *pagin
     }
 }
 
-int converterEnderecoVirtual(Memoria *memoria, Processo *processo, int enderecoVirtual, int politica) {
+int converterEnderecoVirtual(Memoria *memoria, Processo *processo, int enderecoVirtual, int politica, int *pageFault) {
     int pagina, deslocamento;
 
     extrairInformacoes(memoria, processo, enderecoVirtual, &pagina, &deslocamento);
@@ -116,6 +126,7 @@ int converterEnderecoVirtual(Memoria *memoria, Processo *processo, int enderecoV
         processo->paginas[pagina].ultimoAcesso = time(NULL);
     } else {
         printf("\t[PAGE FAULT] A página %d @ PID %d não está na memória\n", pagina + 1, processo->pid);
+        *pageFault += 1;
         int frame = alocarPagina(memoria, &processo->paginas[pagina], politica);
     }
     
@@ -131,7 +142,7 @@ void imprimirEstado(Memoria *memoria, int *contadorDeCiclos) {
         int enderecoInicial = i * memoria->numeroDeEnderecos;
         int enderecoFinal = (i + 1) * memoria->numeroDeEnderecos - 1;
 
-        if (pagina.estaEmMemoria) {
+        if (pagina.estaEmMemoria && i < memoria->framesOcupados) {
             printf("\tFrame %d (0x%04x a 0x%04x): Página %d @ PID %d\n", i, enderecoInicial, enderecoFinal, pagina.i, pagina.pid);
         } else {
             printf("\tFrame %d (0x%04x a 0x%04x): Vazio\n", i, enderecoInicial, enderecoFinal);

@@ -66,13 +66,12 @@ void simularPaginacao(Memoria *memoria, int politica, const char *nomeAlgoritmo)
                processos[processoAleatorio].pid, enderecoAleatorio);
 
         totalAcessos++;
-        int enderecoFisico = converterEnderecoVirtual(memoria, &processos[processoAleatorio], enderecoAleatorio, politica);
+        int enderecoFisico = converterEnderecoVirtual(memoria, &processos[processoAleatorio], enderecoAleatorio, politica, &totalPageFaults);
 
         if (enderecoFisico != -1) {
             printf("\t[INFO] Endereço físico: 0x%04x\n", enderecoFisico);
         } else {
             printf("\t[ERRO] Falha ao acessar o endereço virtual 0x%04x\n", enderecoAleatorio);
-            totalPageFaults++;
         }
 
         imprimirEstado(memoria, &ciclo);
@@ -82,6 +81,7 @@ void simularPaginacao(Memoria *memoria, int politica, const char *nomeAlgoritmo)
         printf("\n");
     }
 
+    limparMemoria(memoria);
     printf("======== ESTATÍSTICAS DA SIMULAÇÃO ========\n");
     printf("Total de acessos à memória: %d\n", totalAcessos);
     printf("Total de page faults: %d\n", totalPageFaults);
