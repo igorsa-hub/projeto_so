@@ -15,6 +15,7 @@ int TEMPO_DE_CICLO; // Tempo de ciclo, quanto maior, mais devagar o ciclo vai pa
 Processo *processos; // Array de processos
 
 int ciclo = 0; // Contador de ciclos
+int count = 0;
 
 // Método para extrair os parâmetros de linha de comando
 // Retorna true se forem extraídos com sucesso, e retorna false se não houver exatamente 2 parâmetros
@@ -45,6 +46,48 @@ bool extrairParametros(int argc, char *argv[], int *numeroDeFrames, int *numeroD
     return true;
 }
 
+void simularPaginacao(Memoria *memoria, int politica, const char *nomeAlgoritmo) {
+    int totalAcessos = 0;
+    int totalPageFaults = 0;
+    int count = 0;
+
+    printf(" --- SIMULADOR DE PAGINAÇÃO ---\n");
+    printf("Algoritmo de substituição: %s\n", nomeAlgoritmo);
+
+    while (count < 10) {
+        int processoAleatorio = rand() % NUMERO_DE_PROCESSOS;
+
+        int pagina = rand() % (int)(processos[processoAleatorio].numeroDePaginas * 1.1);
+        int deslocamento = rand() % (int)(NUMERO_DE_ENDERECOS * 1.1);
+
+        int enderecoAleatorio = (pagina << 20) | deslocamento;
+
+        printf("[INFO] Processo %d solicitou acesso ao endereço virtual 0x%04x\n",
+               processos[processoAleatorio].pid, enderecoAleatorio);
+
+        totalAcessos++;
+        int enderecoFisico = converterEnderecoVirtual(memoria, &processos[processoAleatorio], enderecoAleatorio, politica);
+
+        if (enderecoFisico != -1) {
+            printf("\t[INFO] Endereço físico: 0x%04x\n", enderecoFisico);
+        } else {
+            printf("\t[ERRO] Falha ao acessar o endereço virtual 0x%04x\n", enderecoAleatorio);
+            totalPageFaults++;
+        }
+
+        imprimirEstado(memoria, &ciclo);
+        sleep(TEMPO_DE_CICLO);
+        ciclo++;
+        count++;
+        printf("\n");
+    }
+
+    printf("======== ESTATÍSTICAS DA SIMULAÇÃO ========\n");
+    printf("Total de acessos à memória: %d\n", totalAcessos);
+    printf("Total de page faults: %d\n", totalPageFaults);
+    printf("Taxa de page faults: %.2f%%\n", (totalPageFaults * 100.0) / totalAcessos);
+    printf("\nAlgoritmo: %s\n\n", nomeAlgoritmo);
+}
 
 void criarProcessos() {
     processos = (Processo *)malloc(NUMERO_DE_PROCESSOS * sizeof(Processo));
@@ -58,6 +101,7 @@ void criarProcessos() {
     }
 }
 
+
 int main(int argc, char *argv[]) {
     srand(time(NULL)); // Inicializa o gerador de números aleatórios
 
@@ -69,34 +113,8 @@ int main(int argc, char *argv[]) {
 
     Memoria *memoria = criarMemoria(NUMERO_DE_FRAMES, NUMERO_DE_ENDERECOS);
     criarProcessos();
-
-    while (true) {        
-        // Escolher um processo aleatório para realizar a requisição
-        int processoAleatorio = rand() % NUMERO_DE_PROCESSOS;
-        
-        // Gera uma página aleatória para o processo escolhido, com 20% de chance de ser maior que o número de páginas do processo
-        int pagina = rand() % (int) (processos[processoAleatorio].numeroDePaginas * 1.1);
-        // Gera um endereço virtual aleatório, com 20% de chance de ser maior que o número de endereços
-        int deslocamento = rand() % (int) (NUMERO_DE_ENDERECOS * 1.1);
-
-        // Gera o endereço virtual, com a página nos primeiros 12 bits e o deslocamento nos últimos 20 bits
-        int enderecoAleatorio = (pagina << 20) | deslocamento;
-
-        printf("[INFO] Processo %d solicitou acesso ao endereço virtual 0x%04x\n", processos[processoAleatorio].pid, enderecoAleatorio);
-        
-        int enderecoFisico = converterEnderecoVirtual(memoria, &processos[processoAleatorio], enderecoAleatorio);
-        if (enderecoFisico != -1) {
-            printf("\t[INFO] Endereço físico: 0x%04x\n", enderecoFisico);
-        } else {
-            printf("\t[ERRO] Falha ao acessar o endereço virtual 0x%04x\n", enderecoAleatorio);
-        }
-
-        imprimirEstado(memoria, &ciclo);
-
-        sleep(TEMPO_DE_CICLO); // Simula o tempo de espera para o próximo acesso à memória
-        ciclo++;
-        printf("\n");
-    }
-
+    simularPaginacao(memoria, 0, "LRU");
+    simularPaginacao(memoria, 1, "FIFO");
+     
     return 0;
 }

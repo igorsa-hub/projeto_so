@@ -14,10 +14,10 @@ typedef struct {
 Memoria* criarMemoria(int numeroDeFrames, int numeroDeEnderecos);
 
 // Percorre a memória e aloca a página em um frame
-int alocarPagina(Memoria *memoria, Pagina* pagina);
+int alocarPagina(Memoria *memoria, Pagina* pagina, int politica);
 
 void imprimirEstado(Memoria *memoria, int *contadorDeCiclos);
 
-int converterEnderecoVirtual(Memoria *memoria, Processo *processo, int enderecoVirtual);
+int converterEnderecoVirtual(Memoria *memoria, Processo *processo, int enderecoVirtual, int politica);
 
 #endif
