@@ -106,7 +106,7 @@ int main(int argc, char *argv[]) {
     srand(time(NULL)); // Inicializa o gerador de números aleatórios
 
     if (!extrairParametros(argc, argv, &NUMERO_DE_FRAMES, &NUMERO_DE_ENDERECOS, &NUMERO_DE_PROCESSOS, &TEMPO_DE_CICLO)) {
-        printf("Parâmetros insuficientes, tente novamente com:\n\t<Número de frames> <Número de endereços> <Número de processos>\n");
+        printf("Parâmetros insuficientes, tente novamente com:\n\t<Número de frames> <Número de endereços> <Número de processos> <Tempo de ciclo>\n");
 
         return 1;
     }
